@@ -1,0 +1,57 @@
+service: strava
+
+provider:
+  name: aws
+  stage: prod
+  runtime: go1.x
+  region: us-east-1
+  deploymentBucket: ops-config-mgmt
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action: "sns:Publish"
+      Resource: "${self:custom.sns-topic}"
+  
+functions:
+  subscribe:
+    handler: bin/subscription
+    memorySize: 128
+    events:
+      - http:
+          path: event
+          method: GET
+          cors: true
+    environment:
+      STRAVA_VERIFY_TOKEN: "${ssm:STRAVA_VERIFY_TOKEN}"
+  activity:
+    handler: bin/webhook
+    memorySize: 128
+    events:
+      - http:
+          path: event
+          method: POST
+          cors: true
+    environment:
+      STRAVA_SUBSCRIPTION_ID: "${ssm:STRAVA_SUBSCRIPTION_ID}"
+      SNS_TOPIC: "${self:custom.sns-topic}"
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
+
+plugins:
+  - serverless-plugin-scripts
+  - serverless-domain-manager
+  - serverless-pseudo-parameters
+
+custom:
+  sns-topic: "arn:aws:sns:#{AWS::Region}:#{AWS::AccountId}:strava-events"
+  customDomain:
+    domainName: api.ridegopher.com
+    stage: prod
+    basePath: strava
+  scripts:
+    hooks:
+      package:initialize: make do_all
+
