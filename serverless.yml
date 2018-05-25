@@ -12,7 +12,7 @@ provider:
       Resource: "${self:custom.sns-topic}"
   
 functions:
-  subscribe:
+  subscription:
     handler: bin/subscription
     memorySize: 128
     events:
@@ -22,7 +22,7 @@ functions:
           cors: true
     environment:
       STRAVA_VERIFY_TOKEN: "${ssm:STRAVA_VERIFY_TOKEN}"
-  activity:
+  webhook:
     handler: bin/webhook
     memorySize: 128
     events:
