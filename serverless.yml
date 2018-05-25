@@ -9,7 +9,8 @@ provider:
   iamRoleStatements:
     - Effect: "Allow"
       Action: "sns:Publish"
-      Resource: "${self:custom.sns-topic}"
+      Resource:
+        "Fn::GetAtt": [ SNSTopic, Arn ]
   
 functions:
   subscription:
@@ -32,7 +33,8 @@ functions:
           cors: true
     environment:
       STRAVA_SUBSCRIPTION_ID: "${ssm:STRAVA_SUBSCRIPTION_ID}"
-      SNS_TOPIC: "${self:custom.sns-topic}"
+      SNS_TOPIC:
+        "Fn::GetAtt": [ SNSTopic, Arn ]
 
 package:
   exclude:
@@ -43,10 +45,8 @@ package:
 plugins:
   - serverless-plugin-scripts
   - serverless-domain-manager
-  - serverless-pseudo-parameters
 
 custom:
-  sns-topic: "arn:aws:sns:#{AWS::Region}:#{AWS::AccountId}:strava-events"
   customDomain:
     domainName: api.ridegopher.com
     stage: prod
@@ -55,3 +55,10 @@ custom:
     hooks:
       package:initialize: make do_all
 
+resources:
+  Resources:
+    SNSTopic:
+      Type: "AWS::SNS::Topic"
+      Properties:
+        DisplayName: "Strava Webhook Events"
+        TopicName: strava-webhook-events
