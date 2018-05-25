@@ -7,18 +7,19 @@ import (
 
 // See: https://developers.strava.com/docs/webhooks/
 
-// Response
+// Response is returned to Strava if the verify token is valid
 type Response struct {
 	Challenge string `json:"hub.challenge"`
 }
 
-// Event
+// Event the Strava request to verify a token
 type Event struct {
 	Mode        string `json:"hub.mode"`
 	VerifyToken string `json:"hub.verify_token"`
 	Challenge   string `json:"hub.challenge"`
 }
 
+// VerifyToken verifies a token provided to Strava during the subscription
 func VerifyToken(input map[string]string) (*Response, error) {
 
 	event := &Event{

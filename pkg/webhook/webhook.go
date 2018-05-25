@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-// Event
+// Event holds the data that is submitted to our webhook
 type Event struct {
 	AspectType     string `json:"aspect_type"`
 	EventTime      int64  `json:"event_time"`
@@ -21,7 +21,7 @@ type Event struct {
 	Updates        `json:"updates,omitempty"`
 }
 
-// Updates
+// Updates key/value pairs with extra info
 type Updates struct {
 	Title      string `json:"title,omitempty"`
 	Type       string `json:"type,omitempty"`
@@ -29,6 +29,7 @@ type Updates struct {
 	Authorized string `json:"authorized,omitempty"`
 }
 
+// EventToSNS sends the uploaded event to SNS to be processed by a different lambda
 func EventToSNS(snsSvc snsiface.SNSAPI, event Event) (string, error) {
 
 	message, err := json.Marshal(event)
@@ -50,6 +51,7 @@ func EventToSNS(snsSvc snsiface.SNSAPI, event Event) (string, error) {
 	return *output.MessageId, nil
 }
 
+// CheckSubscriptionId validate the request subscription id
 func CheckSubscriptionId(event Event) error {
 	if strconv.FormatInt(event.SubscriptionId, 10) != os.Getenv("STRAVA_SUBSCRIPTION_ID") {
 		return errors.New("subscription id is not valid")
