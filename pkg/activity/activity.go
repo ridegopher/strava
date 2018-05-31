@@ -145,6 +145,9 @@ func (s *Service) formatLocation() string {
 	if err != nil {
 		return ""
 	}
+	// TODO: Save to athlete
+	// s.athlete.AddLocation(locationKey, location)
+
 	return location
 
 }

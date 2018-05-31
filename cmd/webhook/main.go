@@ -18,14 +18,20 @@ func handleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 	}
 
 	svc, err := webhook.New(&stravaEvent)
+	if err != nil {
+		fmt.Println("failed creating webhook event")
+		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
+	}
 
 	err = svc.CheckSubscriptionId()
 	if err != nil {
+		fmt.Println("failed checking subscription id")
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
 	}
 
 	resp, err := svc.ToSNS()
 	if err != nil {
+		fmt.Println("failed sending to sns")
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
 	}
 

@@ -24,13 +24,13 @@ func handler(ctx context.Context, snsEvent events.SNSEvent) {
 
 		eventSvc, err := webhook.New(webhookEvent)
 		if err != nil {
-			fmt.Println("Error processing message", err)
+			fmt.Println("error processing webhook", err)
 			return
 		}
 
 		message, err := eventSvc.ProcessEvent()
 		if err != nil {
-			fmt.Println("Error processing message", err)
+			fmt.Println("Error processing event", message, err)
 			return
 		}
 

@@ -1,8 +1,8 @@
-package location
+package location_test
 
 import (
 	"fmt"
-	"github.com/ridegopher/strava/pkg/format"
+	"github.com/ridegopher/strava/pkg/location"
 	"os"
 	"testing"
 )
@@ -14,7 +14,7 @@ func TestFormat_Location(t *testing.T) {
 		t.Skip("skipping test; $GOOGLE_API_KEY not set")
 	}
 
-	locSvc, err := format.NewLocationService()
+	locSvc, err := location.New()
 	if err != nil {
 		t.Error(err)
 		return

@@ -9,8 +9,7 @@ provider:
   iamRoleStatements:
     - Effect: "Allow"
       Action: "sns:Publish"
-      Resource:
-        "Fn::GetAtt": [ SNSTopic, Arn ]
+      Resource: "${self:custom.sns-topic}"
     - Effect: Allow
       Action:
         - dynamodb:Query
@@ -19,7 +18,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/Athlete"
+      Resource: "arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/Athletes"
 
 functions:
   subscription:
@@ -42,14 +41,12 @@ functions:
           cors: true
     environment:
       STRAVA_SUBSCRIPTION_ID: "${ssm:STRAVA_SUBSCRIPTION_ID}"
-      SNS_TOPIC:
-        "Fn::GetAtt": [ SNSTopic, Arn ]
+      SNS_TOPIC: "${self:custom.sns-topic}"
   activity:
     handler: bin/activity
     memorySize: 128
     events:
-      - sns:
-        "Fn::GetAtt": [ SNSTopic, Arn ]
+      - sns: "strava-events"
     environment:
       GOOGLE_API_KEY: "${ssm:GOOGLE_API_KEY}"
 
@@ -63,8 +60,10 @@ package:
 plugins:
   - serverless-plugin-scripts
   - serverless-domain-manager
+  - serverless-pseudo-parameters
 
 custom:
+  sns-topic: "arn:aws:sns:#{AWS::Region}:#{AWS::AccountId}:strava-events"
   customDomain:
     domainName: api.ridegopher.com
     stage: prod
@@ -73,10 +72,3 @@ custom:
     hooks:
       package:initialize: make do_all
 
-resources:
-  Resources:
-    SNSTopic:
-      Type: "AWS::SNS::Topic"
-      Properties:
-        DisplayName: "Strava Webhook Events"
-        TopicName: strava-webhook-events
