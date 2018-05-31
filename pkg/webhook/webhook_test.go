@@ -10,7 +10,8 @@ import (
 )
 
 var testEvent = webhook.Event{
-	AspectType:     "update",
+	AspectType:     webhook.AspectTypeCreate,
+	ObjectType:     webhook.ObjectTypeActivity,
 	EventTime:      1516126040,
 	ObjectId:       1360128428,
 	OwnerId:        134815,
@@ -23,9 +24,17 @@ var testEvent = webhook.Event{
 func TestWebhook_CheckSubscriptionIdOk(t *testing.T) {
 
 	os.Setenv("STRAVA_SUBSCRIPTION_ID", "12345")
-	defer os.Unsetenv("STRAVA_SUBSCRIPTION_ID")
+	//defer os.Unsetenv("STRAVA_SUBSCRIPTION_ID")
 
-	err := webhook.CheckSubscriptionId(testEvent)
+	svc, err := webhook.New(&testEvent)
+	svc.SNS = &mockSNSClient{}
+
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	err = svc.CheckSubscriptionId()
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -34,10 +43,17 @@ func TestWebhook_CheckSubscriptionIdOk(t *testing.T) {
 
 func TestWebhook_CheckSubscriptionIdFail(t *testing.T) {
 
-	os.Setenv("STRAVA_SUBSCRIPTION_ID", "12345x")
-	defer os.Unsetenv("STRAVA_SUBSCRIPTION_ID")
+	os.Setenv("STRAVA_SUBSCRIPTION_ID", "1234500")
+	//defer os.Unsetenv("STRAVA_SUBSCRIPTION_ID")
 
-	err := webhook.CheckSubscriptionId(testEvent)
+	svc, err := webhook.New(&testEvent)
+	svc.SNS = &mockSNSClient{}
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	err = svc.CheckSubscriptionId()
 	if err == nil {
 		t.Error("Subscription is valid when it shouldn't be")
 	}
@@ -54,7 +70,7 @@ func (m *mockSNSClient) PublishRequest(input *sns.PublishInput) sns.PublishReque
 	return m.Request
 }
 
-func TestWebhook_EventToSNS(t *testing.T) {
+func TestWebhook_ToSNS(t *testing.T) {
 
 	cases := []struct {
 		Request          sns.PublishRequest
@@ -78,16 +94,29 @@ func TestWebhook_EventToSNS(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		mockSvc := &mockSNSClient{Request: c.Request}
-
-		response, err := webhook.EventToSNS(mockSvc, testEvent)
+		svc, err := webhook.New(&testEvent)
+		svc.SNS = &mockSNSClient{Request: c.Request}
 		if err != nil {
 			t.Error(err.Error())
+			return
+		}
+
+		response, err := svc.ToSNS()
+		if err != nil {
+			t.Error(err.Error())
+			return
 		}
 
 		if response != c.ExpectedResponse {
 			t.Error("Response doesn't match expected output")
 		}
 
+	}
+}
+
+func TestWebhook_CheckObjectType(t *testing.T) {
+
+	if testEvent.ObjectType != webhook.ObjectTypeActivity {
+		t.Error("Response doesn't match expected output")
 	}
 }

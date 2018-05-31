@@ -19,19 +19,51 @@ type Event struct {
 	Challenge   string `json:"hub.challenge"`
 }
 
-// VerifyToken verifies a token provided to Strava during the subscription
-func VerifyToken(input map[string]string) (*Response, error) {
+type Service struct {
+	event Event
+}
 
-	event := &Event{
-		Mode:        input["hub.mode"],
-		VerifyToken: input["hub.verify_token"],
-		Challenge:   input["hub.challenge"],
+func New(input map[string]string) (*Service, error) {
+
+	mode := input["hub.mode"]
+	if mode == "" {
+		return nil, errors.New("missing hub.mode")
 	}
 
-	if event.Mode != "subscribe" || event.VerifyToken != os.Getenv("STRAVA_VERIFY_TOKEN") {
+	verifyToken := input["hub.verify_token"]
+	if verifyToken == "" {
+		return nil, errors.New("missing hub.verify_token")
+	}
+
+	challenge := input["hub.challenge"]
+	if challenge == "" {
+		return nil, errors.New("missing hub.challenge")
+	}
+
+	service := &Service{
+		Event{
+			Mode:        mode,
+			VerifyToken: verifyToken,
+			Challenge:   challenge,
+		},
+	}
+
+	return service, nil
+
+}
+
+// VerifyToken verifies a token provided to Strava during the subscription
+func (s *Service) VerifyToken() (*Response, error) {
+
+	token := os.Getenv("STRAVA_VERIFY_TOKEN")
+	if token == "" {
+		return nil, errors.New("missing env var STRAVA_VERIFY_TOKEN")
+	}
+
+	if s.event.Mode != "subscribe" || s.event.VerifyToken != token {
 		return &Response{}, errors.New("you have been dropped")
 	}
 
-	return &Response{Challenge: event.Challenge}, nil
+	return &Response{Challenge: s.event.Challenge}, nil
 
 }

@@ -11,7 +11,16 @@ provider:
       Action: "sns:Publish"
       Resource:
         "Fn::GetAtt": [ SNSTopic, Arn ]
-  
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/Athlete"
+
 functions:
   subscription:
     handler: bin/subscription
@@ -35,6 +44,15 @@ functions:
       STRAVA_SUBSCRIPTION_ID: "${ssm:STRAVA_SUBSCRIPTION_ID}"
       SNS_TOPIC:
         "Fn::GetAtt": [ SNSTopic, Arn ]
+  activity:
+    handler: bin/activity
+    memorySize: 128
+    events:
+      - sns:
+        "Fn::GetAtt": [ SNSTopic, Arn ]
+    environment:
+      GOOGLE_API_KEY: "${ssm:GOOGLE_API_KEY}"
+
 
 package:
   exclude:
