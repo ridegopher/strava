@@ -226,7 +226,7 @@ func latLngKey(location strava.Location) (string, error) {
 	if err != nil {
 		return "", errors.New("location data not correct")
 	}
-	return fmt.Sprintf("%f,%f", lat, lng), nil
+	return fmt.Sprintf("%.2f,%.2f", lat, lng), nil
 }
 
 func latLng(location strava.Location) (float64, float64, error) {

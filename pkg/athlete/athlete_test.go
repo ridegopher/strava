@@ -80,7 +80,7 @@ func TestAthlete_Get(t *testing.T) {
 }
 
 func TestAthlete_UpdateLocation(t *testing.T) {
-	//t.Skipf("Used for manual testing")
+	t.Skipf("Used for manual testing")
 
 	svc, err := athlete.New()
 	if err != nil {
