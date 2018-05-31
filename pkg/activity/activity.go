@@ -11,10 +11,11 @@ import (
 )
 
 type Service struct {
-	updater   *strava.ActivitiesPutCall
-	activity  *strava.ActivityDetailed
-	stravaSvc *strava.ActivitiesService
-	athlete   *athlete.Athlete
+	updater    *strava.ActivitiesPutCall
+	activity   *strava.ActivityDetailed
+	stravaSvc  *strava.ActivitiesService
+	athlete    *athlete.Athlete
+	athleteSvc *athlete.Service
 }
 
 func New(athleteId int, activityId int64) (*Service, error) {
@@ -40,10 +41,11 @@ func New(athleteId int, activityId int64) (*Service, error) {
 	updater := stravaSvc.Update(activityId)
 
 	newService := &Service{
-		updater:   updater,
-		activity:  activity,
-		stravaSvc: stravaSvc,
-		athlete:   athlete,
+		updater:    updater,
+		activity:   activity,
+		stravaSvc:  stravaSvc,
+		athlete:    athlete,
+		athleteSvc: athleteSvc,
 	}
 
 	return newService, nil
@@ -145,8 +147,8 @@ func (s *Service) formatLocation() string {
 	if err != nil {
 		return ""
 	}
-	// TODO: Save to athlete
-	// s.athlete.AddLocation(locationKey, location)
+
+	s.athleteSvc.UpdateLocations(s.athlete, locationKey, location)
 
 	return location
 

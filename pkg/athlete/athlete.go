@@ -39,6 +39,7 @@ type Commute struct {
 
 type Service struct {
 	dynamodbiface.DynamoDBAPI
+	table *string
 }
 
 func New() (*Service, error) {
@@ -49,7 +50,7 @@ func New() (*Service, error) {
 	svc := dynamodb.New(cfg)
 	db := dynamodbiface.DynamoDBAPI(svc)
 
-	return &Service{DynamoDBAPI: db}, nil
+	return &Service{DynamoDBAPI: db, table: aws.String("Athletes")}, nil
 
 }
 
@@ -62,7 +63,7 @@ func (s *Service) Get(id int) (*Athlete, error) {
 				N: aws.String(aId),
 			},
 		},
-		TableName: aws.String("Athletes"),
+		TableName: s.table,
 	}
 
 	athlete := &Athlete{}
@@ -77,4 +78,35 @@ func (s *Service) Get(id int) (*Athlete, error) {
 
 	return athlete, nil
 
+}
+
+func (s *Service) UpdateLocations(athlete *Athlete, locationKey, location string) error {
+	input := &dynamodb.UpdateItemInput{
+		Key: map[string]dynamodb.AttributeValue{
+			"id": {
+				N: aws.String(strconv.Itoa(athlete.Id)),
+			},
+		},
+		UpdateExpression: aws.String("set locations.#key = :location"),
+		ExpressionAttributeNames: map[string]string{
+			"#key": locationKey,
+		},
+		ExpressionAttributeValues: map[string]dynamodb.AttributeValue{
+			":location": {
+				S: aws.String(location),
+			},
+		},
+		ConditionExpression: aws.String("attribute_not_exists(locations.#key)"),
+
+		ReturnValues: "UPDATED_NEW",
+		TableName:    s.table,
+	}
+
+	req := s.DynamoDBAPI.UpdateItemRequest(input)
+	if _, err := req.Send(); err == nil {
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

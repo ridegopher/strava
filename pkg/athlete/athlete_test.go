@@ -79,6 +79,24 @@ func TestAthlete_Get(t *testing.T) {
 
 }
 
+func TestAthlete_UpdateLocation(t *testing.T) {
+	//t.Skipf("Used for manual testing")
+
+	svc, err := athlete.New()
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+
+	returnedAthlete, err := svc.Get(1234567)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	fmt.Println("updating")
+	svc.UpdateLocations(returnedAthlete, "123,456", "SomePlace Chicago IL")
+}
+
 func TestAthlete_GetNoMock(t *testing.T) {
 	t.Skipf("Used for manual testing")
 	svc, err := athlete.New()
@@ -87,7 +105,7 @@ func TestAthlete_GetNoMock(t *testing.T) {
 		return
 	}
 
-	returnedAthlete, err := svc.Get(9460264)
+	returnedAthlete, err := svc.Get(1234567)
 	if err != nil {
 		t.Errorf(err.Error())
 		return
