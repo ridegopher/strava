@@ -20,12 +20,17 @@ func TestSubscription_SubscribeOK(t *testing.T) {
 		"hub.challenge":    challenge,
 	}
 
-	response, err := subscription.VerifyToken(input)
+	svc, err := subscription.New(input)
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
 
+	response, err := svc.VerifyToken()
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
 	if !reflect.DeepEqual(response, &subscription.Response{Challenge: challenge}) {
 		t.Error("Expected Response was not equal")
 	}
@@ -45,7 +50,17 @@ func TestSubscription_SubscribeFail(t *testing.T) {
 		"hub.challenge":    challenge,
 	}
 
-	response, _ := subscription.VerifyToken(input)
+	svc, err := subscription.New(input)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	response, err := svc.VerifyToken()
+	if err == nil {
+		t.Error(err.Error())
+		return
+	}
 
 	if reflect.DeepEqual(response, &subscription.Response{Challenge: challenge}) {
 		t.Error("Expected Response was equal, test failed")

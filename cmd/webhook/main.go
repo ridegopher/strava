@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/aws/external"
-	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/ridegopher/strava/pkg/webhook"
 )
 
@@ -19,18 +17,14 @@ func handleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 400}, nil
 	}
 
-	err = webhook.CheckSubscriptionId(stravaEvent)
+	svc, err := webhook.New(&stravaEvent)
+
+	err = svc.CheckSubscriptionId()
 	if err != nil {
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
 	}
 
-	cfg, err := external.LoadDefaultAWSConfig()
-	if err != nil {
-		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 400}, nil
-	}
-
-	snsSvc := sns.New(cfg)
-	resp, err := webhook.EventToSNS(snsSvc, stravaEvent)
+	resp, err := svc.ToSNS()
 	if err != nil {
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
 	}

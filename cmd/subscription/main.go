@@ -10,11 +10,12 @@ import (
 
 func handleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
-	response, err := subscription.VerifyToken(request.QueryStringParameters)
+	svc, err := subscription.New(request.QueryStringParameters)
 	if err != nil {
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
 	}
 
+	response, err := svc.VerifyToken()
 	body, err := json.Marshal(response)
 	if err != nil {
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
