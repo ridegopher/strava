@@ -15,6 +15,7 @@ type Athlete struct {
 	Id                int                 `json:"id"`
 	AccessToken       string              `json:"access_token"`
 	UpdateDescription bool                `json:"update_description"`
+	MeasurementPref   string              `json:"measurement_preference"`
 	DateFormat        format.DateFormat   `json:"date_format"`
 	Activities        map[string]Activity `json:"activities,omitempty"`
 	Commutes          map[string]Commute  `json:"commutes,omitempty"`
@@ -22,8 +23,8 @@ type Athlete struct {
 }
 
 type Activity struct {
-	IsTrainer           bool `json:"trainer"`
 	strava.ActivityType `json:"activity_type"`
+	IsTrainer           bool                `json:"trainer"`
 	GearId              string              `json:"gear_id"`
 	Private             bool                `json:"private"`
 	Description         string              `json:"description"`

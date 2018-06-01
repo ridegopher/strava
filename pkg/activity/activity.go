@@ -191,6 +191,10 @@ func (s *Service) formatName(formats []format.NameFormat) string {
 				rv = append(rv, startDate)
 			}
 
+		case format.NameFormats.Distance:
+			dist := format.Distance(s.activity.Distance, format.Conversion(s.athlete.MeasurementPref))
+			rv = append(rv, dist)
+
 		case format.NameFormats.Dash:
 			rv = append(rv, "-")
 
