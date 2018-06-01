@@ -25,15 +25,29 @@ func Distance(distance float64, c Conversion) string {
 
 	switch c {
 	case Conversions.K:
-		rv = fixFloat(distance / 1000)
+		rv = Round(distance / 1000)
+
 	case Conversions.M:
-		rv = fixFloat(distance * float64(0.00062137))
+		rv = Round(distance * float64(0.00062137))
 	}
 
 	return fmt.Sprintf("%s%s", rv, c)
 }
 
-func fixFloat(in float64) string {
-	ceil := math.Ceil(in*100) / 100
-	return strconv.FormatFloat(ceil, 'f', -1, 64)
+func Round(val float64) string {
+	var round float64
+	roundOn := float64(.5)
+	places := float64(2)
+
+	pow := math.Pow(10, float64(places))
+	digit := pow * val
+	_, div := math.Modf(digit)
+	_div := math.Copysign(div, val)
+	_roundOn := math.Copysign(roundOn, val)
+	if _div >= _roundOn {
+		round = math.Ceil(digit)
+	} else {
+		round = math.Floor(digit)
+	}
+	return strconv.FormatFloat(round/pow, 'f', -1, 64)
 }

@@ -15,9 +15,9 @@ func TestFormat_Distance(t *testing.T) {
 
 	inputs := map[string]tester{
 		"8k":      {d: 8000, f: format.Conversions.K},
-		"4.98mi":  {d: 8000, f: format.Conversions.M},
+		"4.97mi":  {d: 8000, f: format.Conversions.M},
 		"18.5k":   {d: 18500, f: format.Conversions.K},
-		"11.19mi": {d: 18000, f: format.Conversions.M},
+		"11.18mi": {d: 18000, f: format.Conversions.M},
 	}
 
 	for expected, test := range inputs {
