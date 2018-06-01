@@ -16,8 +16,6 @@ var Conversions = struct {
 	"mi",
 }
 
-var toMiles = float64(0.00062137)
-
 func Distance(distance float64, c Conversion) string {
 
 	var rv string
