@@ -19,8 +19,24 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
       Resource: "arn:aws:dynamodb:#{AWS::Region}:#{AWS::AccountId}:table/Athletes"
+    - Effect: Allow
+      Action: cognito-identity:GetOpenIdTokenForDeveloperIdentity
+      Resource: "arn:aws:cognito-identity:#{AWS::Region}:#{AWS::AccountId}:identitypool/${ssm:COGNITO_IDENTITY_POOL_ID}"
 
 functions:
+  oauth:
+    handler: bin/oauth
+    memorySize: 128
+    events:
+      - http:
+          path: oauth
+          method: GET
+          cors: true
+    environment:
+      STRAVA_CLIENT_ID: "${ssm:STRAVA_CLIENT_ID}"
+      STRAVA_CLIENT_SECRET: "${ssm:STRAVA_CLIENT_SECRET}"
+      COGNITO_IDENTITY_POOL_ID: "${ssm:COGNITO_IDENTITY_POOL_ID}"
+      COGNITO_IDENTITY_LINKED_LOGIN: "${ssm:COGNITO_IDENTITY_LINKED_LOGIN}"
   subscription:
     handler: bin/subscription
     memorySize: 128
