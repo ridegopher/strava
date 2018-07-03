@@ -8,7 +8,7 @@ import (
 )
 
 func TestOauth_Authorize(t *testing.T) {
-	t.Skipf("Run manually")
+	t.Skip("Run manually")
 	fmt.Println(strava.ClientId)
 	fmt.Println(strava.ClientSecret)
 	auth, _ := oauth.New()
