@@ -7,26 +7,11 @@ import (
 	"testing"
 )
 
-//func TestOauth_MockAuthorize(t *testing.T) {
-
-//t.Skipf("Used for manual testing")
-//authorizer, err := oauth.New()
-//if err != nil {
-//	t.Fail()
-//}
-//out, err := authorizer.Authorize("xxx")
-//if err != nil {
-//	t.Fail()
-//}
-//
-//fmt.Printf("%+v\n", out)
-//}
-
 func TestOauth_Authorize(t *testing.T) {
-
+	t.Skipf("Run manually")
 	fmt.Println(strava.ClientId)
 	fmt.Println(strava.ClientSecret)
 	auth, _ := oauth.New()
-	token, _ := auth.Authorize("7b5954244dff1250bd1ca6b02e8841bb235eeaf5")
+	token, _ := auth.Authorize("xxx")
 	fmt.Println("token", token)
 }
