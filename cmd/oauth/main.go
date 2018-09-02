@@ -30,7 +30,17 @@ func handleRequest(ctx context.Context, request events.APIGatewayProxyRequest) (
 		return events.APIGatewayProxyResponse{Body: err.Error(), StatusCode: 403}, nil
 	}
 
-	return events.APIGatewayProxyResponse{Body: string(body), StatusCode: 200}, nil
+	resp := events.APIGatewayProxyResponse{
+		Body: string(body),
+		Headers: map[string]string{
+			"Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key",
+			"Access-Control-Allow-Methods": "*",
+			"Access-Control-Allow-Origin":  "*",
+		},
+		StatusCode: 200,
+	}
+
+	return resp, nil
 }
 
 func main() {
