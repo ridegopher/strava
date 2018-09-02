@@ -14,7 +14,8 @@ type Service struct {
 }
 
 type AuthorizeOutput struct {
-	Token string `json:"token"`
+	Token      string `json:"token"`
+	IdentityId string `json:"identity_id"`
 }
 
 func New() (*Service, error) {
@@ -44,7 +45,8 @@ func (s *Service) Authorize(code string) (*AuthorizeOutput, error) {
 	}
 
 	authOut := &AuthorizeOutput{
-		Token: identityOutput.Token,
+		Token:      identityOutput.Token,
+		IdentityId: identityOutput.IdentityId,
 	}
 
 	return authOut, nil
